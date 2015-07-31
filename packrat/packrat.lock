@@ -1,0 +1,198 @@
+PackratFormat: 1.4
+PackratVersion: 0.4.3
+RVersion: 3.1.2
+Repos: CRAN=http://cran.rstudio.com,
+    BioCsoft=http://bioconductor.org/packages/3.0/bioc,
+    BioCann=http://bioconductor.org/packages/3.0/data/annotation,
+    BioCexp=http://bioconductor.org/packages/3.0/data/experiment,
+    BioCextra=http://bioconductor.org/packages/3.0/extra
+
+Package: Biobase
+Source: Bioconductor
+Version: 2.26.0
+Hash: b71870d5a99d67d1aed2539586108549
+Requires: BiocGenerics
+
+Package: BiocGenerics
+Source: Bioconductor
+Version: 0.12.1
+Hash: 87ec9b94ce0544cb5730b6567d266994
+
+Package: MASS
+Source: CRAN
+Version: 7.3-39
+Hash: 07a460fafc264e456aa1e7ae661a7194
+
+Package: Matrix
+Source: CRAN
+Version: 1.1-5
+Hash: fc193dc4dfd08172d8e2d1f9a627ae1d
+Requires: lattice
+
+Package: RColorBrewer
+Source: CRAN
+Version: 1.1-2
+Hash: 5203278413b09be06483c5ac1920bb05
+
+Package: Rcpp
+Source: CRAN
+Version: 0.11.4
+Hash: 1f684f6afd28079e4e609b49f353e49f
+
+Package: VennDiagram
+Source: CRAN
+Version: 1.6.9
+
+Package: chron
+Source: CRAN
+Version: 2.3-45
+Hash: 65cf73bf43c26a4578bb251499de38cd
+
+Package: cluster
+Source: CRAN
+Version: 2.0.1
+Hash: 4f2aaa7fd35950424beb5c5c9752b6c5
+
+Package: colorspace
+Source: CRAN
+Version: 1.2-5
+Hash: 46e55a2cc23f92862ffa4485526522c5
+
+Package: data.table
+Source: CRAN
+Version: 1.9.4
+Hash: 905b6356d387a3a7e13ef62c4cf6f7e3
+Requires: chron, reshape2
+
+Package: dichromat
+Source: CRAN
+Version: 2.0-0
+Hash: 42be2136555fa4b6167605df56d8cd7c
+
+Package: digest
+Source: CRAN
+Version: 0.6.8
+Hash: 89dc4c8734dad5322bb3c5c2af09056f
+
+Package: ggplot2
+Source: CRAN
+Version: 1.0.0
+Hash: c8bff66238347472f08b6a35608539ff
+Requires: MASS, digest, gtable, plyr, proto, reshape2, scales
+
+Package: gridExtra
+Source: CRAN
+Version: 0.9.1
+
+Package: gtable
+Source: CRAN
+Version: 0.1.2
+Hash: 0cf4a2b54c02b35dec7e74a8ebed12a0
+
+Package: gtools
+Source: CRAN
+Version: 3.4.1
+Hash: e4c2510a4ba86b5826f05d9f3639cb13
+
+Package: labeling
+Source: CRAN
+Version: 0.3
+Hash: 568a992912caf7eeddfb121924154047
+
+Package: lattice
+Source: CRAN
+Version: 0.20-30
+Hash: d635f3e4d93949f095ec8ff37e5aeb04
+
+Package: mgcv
+Source: CRAN
+Version: 1.8-5
+Hash: 8ed19c55fabf84c1bc3384883327a993
+Requires: Matrix, nlme
+
+Package: multtest
+Source: Bioconductor
+Version: 2.22.0
+Hash: 049a35efad8d9cded88d1b3e67f33095
+Requires: Biobase, MASS, survival
+
+Package: munsell
+Source: CRAN
+Version: 0.4.2
+Hash: fa8af6d040041439b249351e9d16ae9a
+Requires: colorspace
+
+Package: nlme
+Source: CRAN
+Version: 3.1-120
+Hash: 8fc6a3336f7f8c8508b4063a2af286e7
+Requires: lattice
+
+Package: packrat
+Source: CRAN
+Version: 0.4.3
+Hash: 16c72d5c802629fae5a4abca901e0199
+
+Package: permute
+Source: CRAN
+Version: 0.8-3
+Hash: 92a39171e57ccc8c82abc65db2ef593d
+
+Package: plyr
+Source: CRAN
+Version: 1.8.1
+Hash: 7dd935ee4050eaf2973108be2faf245e
+Requires: Rcpp
+
+Package: preprocessCore
+Source: Bioconductor
+Version: 1.28.0
+Hash: f0755bfd7358b1ba562ec841b2ad91cf
+
+Package: proto
+Source: CRAN
+Version: 0.3-10
+Hash: 668a9e87cedbdc5f56c396edf1bd2648
+
+Package: raster
+Source: CRAN
+Version: 2.3-33
+Requires: sp
+
+Package: reshape2
+Source: CRAN
+Version: 1.4.1
+Hash: c401ef665db07687e1e54fbc60c683bb
+Requires: Rcpp, plyr, stringr
+
+Package: scales
+Source: CRAN
+Version: 0.2.4
+Hash: b8b1af97bd07818605223060386b00dd
+Requires: RColorBrewer, dichromat, labeling, munsell, plyr
+
+Package: sp
+Source: CRAN
+Version: 1.0-17
+Requires: lattice
+
+Package: stringi
+Source: CRAN
+Version: 0.4-1
+Hash: 955e96fc5961bf9f7b3ca916f9b1e606
+
+Package: stringr
+Source: CRAN
+Version: 0.6.2
+Hash: cdde0cfa0f52cffeaca23a11a3899779
+
+Package: survival
+Source: CRAN
+Version: 2.38-1
+Hash: 643179105493be7b35d7aae18016bbb8
+
+Package: vegan
+Source: CRAN
+Version: 2.2-1
+Hash: a61b5cf96004adf6455a42c1d4c9e920
+Requires: MASS, cluster, lattice, mgcv, permute
