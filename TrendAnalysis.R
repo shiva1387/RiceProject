@@ -20,7 +20,8 @@ setwd('../../Transcriptomics/data/')
 
 WTEC<-read.csv("toptags_tt_WTEC_edgeR.csv",header=TRUE)
 WTMU<-read.csv("toptags_tt_WTMU_edgeR.csv",header=TRUE)
-
+rownames(WTEC)<-WTEC$X
+rownames(WTMU)<-WTMU$X
 ## CONVERT TO NCBI GENE IDS
 GeneDesc_GeneId<-read.table("../../Metabolomics/data/EnrichmentAnalysis/GeneDescrip_GeneId.txt",header=TRUE,check.names=FALSE,stringsAsFactors = FALSE,sep="\t")
 GeneDesc_GeneId$KEGG_geneId<-gsub('osa:','',GeneDesc_GeneId$KEGG_geneId)
@@ -33,9 +34,9 @@ colnames(WTEC_diff)<-c("GeneId","logFC_WTEC","FDR(p-value)_WTEC")
 WTEC_diff<-merge(WTEC_diff,GeneDesc_GeneId,all=FALSE, by='GeneId', all.x= TRUE)
 ###NOTE: All logFC_WTEC regulation arewith respect to WT. As we are interested in the over-expression or mutant
 ### i have reversed the colors. Therefore, those 
-
-
-WTEC_diff$color
+WTEC_diff<- mutate(WTEC_diff, KEGGcolor = ifelse(logFC_WTEC <= 0 , "red","blue")) 
+#by default, it should be red for up-regulation and blue for down, however here the 
+#colors are based on expression patterns in overexpression, and hence, reversed
 # nrow(WTEC_diff)
 # [1] 3705
 nrow(WTEC_diff[WTEC_diff$logFC_WTEC>=0,])
@@ -44,10 +45,12 @@ nrow(WTEC_diff[WTEC_diff$logFC_WTEC>=0,])
 nrow(WTEC_diff[WTEC_diff$logFC_WTEC<=0,])
 #Down-regulated in WT 
 #2037
-write.table(WTEC_diff,"WTEC_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
+# write.table(WTEC_diff,"WTEC_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
 
 WTMU_diff<-WTMU[WTMU$logFC >= 1 | WTMU$logFC <= -1 & WTMU$FDR <=0.05,c("X","logFC","FDR")]
 colnames(WTMU_diff)<-c("GeneId","logFC_WTMU","FDR(p-value)_WTMU")
+WTMU_diff<-merge(WTMU_diff,GeneDesc_GeneId,all=FALSE, by='GeneId', all.x= TRUE)
+WTMU_diff<- mutate(WTMU_diff, KEGGcolor = ifelse(logFC_WTMU <= 0 , "red","blue")) 
 # nrow(WTMU_diff)
 # [1] 1210
 nrow(WTMU_diff[WTMU_diff$logFC_WTMU>=0,])
@@ -66,34 +69,34 @@ grid.draw(venn.plot)
 dev.off()
 
 #Merging the 2 comparisons to look at trends
-
-merge_WTECMU<-merge(WTEC_diff,WTMU_diff,all=FALSE)
+merge_WTECMU<-merge(WTEC_diff,WTMU_diff,by='GeneId', all=FALSE)
 rownames(merge_WTECMU)<-merge_WTECMU$GeneId
-d3heatmap(merge_WTECMU[,c(2,4)], labRow=NULL, colors = "RdYlBu",scale="none", dendogram="both")
+write.table(merge_WTECMU,"Common_WTEC-WTMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
+#d3heatmap(merge_WTECMU[,c(2,4)], labRow=NULL, colors = "RdYlBu",scale="none", dendogram="both")
 
-#Extracting Genes Up-reg in WT(EC) and Down-reg in WT(MU)
-upWTEC_downWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC>=0 & merge_WTECMU$logFC_WTMU<=0,]
+#Extracting Genes Up-reg in EC and Down-reg in MU
+upWTEC_downWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC<=0 & merge_WTECMU$logFC_WTMU>=0,]
 nrow(upWTEC_downWTMU)
-#25
-#write.table(upWTEC_downWTMU,"upWTEC_downWTMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
-
-#Extracting Genes Down-reg in WT(EC) and Up-reg in WT(MU)
-downWTEC_upWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC<=0 & merge_WTECMU$logFC_WTMU>=0,]
-nrow(downWTEC_upWTMU)
 #29
-#write.table(downWTEC_upWTMU,"downWTEC_upWTMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
+#write.table(upWTEC_downWTMU,"upEC_downMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
 
-#Extracting Genes Up-reg in WT(EC) and Up-reg in WT(MU)
-upWTEC_upWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC>=0 & merge_WTECMU$logFC_WTMU>=0,]
+#Extracting Genes Down-reg in EC and Up-reg in MU
+downWTEC_upWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC>=0 & merge_WTECMU$logFC_WTMU<=0,]
+nrow(downWTEC_upWTMU)
+#25
+#write.table(downWTEC_upWTMU,"downEC_upMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
+
+#Extracting Genes Up-reg in EC and Up-reg in MU
+upWTEC_upWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC<=0 & merge_WTECMU$logFC_WTMU<=0,]
 nrow(upWTEC_upWTMU)
-#253
-#write.table(upWTEC_upWTMU,"upWTEC_upWTMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
-
-#Extracting Genes Down-reg in WT(EC) and Down-reg in WT(MU)
-downWTEC_downWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC<=0 & merge_WTECMU$logFC_WTMU<=0,]
-nrow(downWTEC_downWTMU)
 #600
-write.table(downWTEC_downWTMU,"downWTEC_downWTMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
+#write.table(upWTEC_upWTMU,"upEC_upMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
+
+#Extracting Genes Down-reg in EC and Down-reg in MU
+downWTEC_downWTMU<-merge_WTECMU[merge_WTECMU$logFC_WTEC>=0 & merge_WTECMU$logFC_WTMU>=0,]
+nrow(downWTEC_downWTMU)
+#253
+write.table(downWTEC_downWTMU,"downEC_downMU_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
 
 ##Genes differential only in WTEC
 onlyWTEC_notWTMU<-anti_join(WTEC_diff, WTMU_diff, by="GeneId")
