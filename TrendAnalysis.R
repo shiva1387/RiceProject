@@ -31,6 +31,10 @@ GeneDesc_GeneId <- mutate_each(GeneDesc_GeneId, funs(toupper)) #Converting all n
 WTEC_diff<-WTEC[WTEC$logFC >= 1 | WTEC$logFC <= -1 & WTEC$FDR <=0.05,c("X","logFC","FDR")]
 colnames(WTEC_diff)<-c("GeneId","logFC_WTEC","FDR(p-value)_WTEC")
 WTEC_diff<-merge(WTEC_diff,GeneDesc_GeneId,all=FALSE, by='GeneId', all.x= TRUE)
+###NOTE: All logFC_WTEC regulation arewith respect to WT. As we are interested in the over-expression or mutant
+### i have reversed the colors. Therefore, those 
+
+
 WTEC_diff$color
 # nrow(WTEC_diff)
 # [1] 3705
