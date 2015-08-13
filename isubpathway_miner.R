@@ -1,8 +1,8 @@
-##############################################################
-# Metabolomics Pathway enrichment in R-Arabidiopsis TT8 data #
-##############################################################
+################################################
+# Metabolomics Pathway enrichment in Rice data #
+################################################
 # Author(s): Shiv
-# Version: 24042015 
+# Version: 12082015 
 # Input: ".tsv" file from XCMS 
 # Software: XCMS
 # Modified By :Shivshankar Umashankar 
@@ -24,14 +24,14 @@ getOrgAndIdType()
 
 #####getting list of significant genes and metabolites
 
-setwd('F:/Projects/NUS/RiceProject/Metabolomics/data/EnrichmentAnalysis/')
+setwd('/Users/shiv/Dropbox/Projects/NUS/RiceProject/Metabolomics/scripts/')
 
-sig_genes_metab<-read.table('EC_diffGenesMetab.txt',header=TRUE,sep='\t')
+sig_genes<-read.table('../../Transcriptomics/data/TrendsPval05Fc2/onlyWTMU_notWTEC_differentialGenes.txt',header=TRUE,sep='\t')
+sig_metab<-read.table('../../Metabolomics/data/EnrichmentAnalysis/gFC2mFC2pv05/WTMU_Metabolites.txt',header=TRUE,sep='\t')
+gene_data<-sig_genes$KEGG_geneId
+gene_data<-as.integer(na.omit(gene_data))
 
-gene_data<-sig_genes_metab[,1]
-gene_data<-as.integer(gene_data[gene_data!=""])
-
-metab_data<-sig_genes_metab[,2]
+metab_data<-sig_metab[,1]
 metab_data<-as.character(metab_data[metab_data!=""])
 
 moleculeList1<-as.character(c(gene_data,metab_data))
@@ -56,7 +56,7 @@ result[1:10,]
 #in 25051 background molecules are annotated to the subpathway. 
 result1<-printGraph(reGM$ann,detail=TRUE)
 ##write the annotation results to tab delimited file. 
-write.table(result1,file="EC_subpathway-result-pv05_fc2_meta_n5s5.txt",row.names=FALSE,sep="\t",quote=FALSE)
+write.table(result1,file="MU_subpathway-result-pv05_fc2_meta_n5s5.txt",row.names=FALSE,sep="\t",quote=FALSE)
 
 #visualize subpathways in R and KEGG web site
 str(result1)
@@ -74,8 +74,8 @@ for(i in 1:nrow(result1))
 ##########get the list of pathway graphs#########
 ##Convert all metabolic pathways to graphs.
 #convert pathways to a list in R
-setwd('F:/Projects/NUS/RiceProject/KEGG2015/kgml/metabolic/organisms/osa/')
-path<-paste("F:/Projects/NUS/RiceProject/KEGG2015/kgml/metabolic/organisms/osa/")
+setwd('../../KEGG2015/kgml/metabolic/organisms/osa/')
+path<-paste("/Users/shiv/Dropbox/Projects/NUS/RiceProject/KEGG2015/kgml/metabolic/organisms/osa/")
 
 a<-list.files()
 p<-getPathway(path,a)
@@ -86,21 +86,20 @@ summary(gm[[1]])
 
 graphList<-c(gm)
 
-setwd('F:/Projects/NUS/RiceProject/Metabolomics/data/')
 ##get a set of genes annotate gene sets to graphs and identify significant graphs
 ann<-identifyGraph(as.character(gene_data),graphList,type="gene")
 #convert ann to data.frame
 result<-printGraph(ann,detail=TRUE)
 ##write the annotation results to tab delimited file.
-write.table(result,file="EC_gene_enrichment_result_pv05fc2.txt",row.names=FALSE,sep="\t",quote=FALSE)
+write.table(result,file="onlyMU_noEC_enrichment_result_pv05fc2.txt",row.names=FALSE,sep="\t",quote=FALSE)
 
 ##########annotate metabolite sets and identify enriched metabolic pathways###########
 
-ann<-identifyGraph(as.character(metab_data),graphList,type="compound")
+ann<-identifyGraph(metab_data,graphList,type="compound")
 #convert ann to data.frame
 result<-printGraph(ann,detail=TRUE)
 result[which(result[,"pvalue"]<0.05),]
-write.table(result,file="EC_metabolite_enrichment_result_pv05.txt",row.names=FALSE,sep="\t",quote=FALSE)
+write.table(result,file="MU_metabolite_enrichment_result_pv05.txt",row.names=FALSE,sep="\t",quote=FALSE)
 
 ##########annotate gene and compound sets and identify enriched metabolic pathways###########
 #annotate gene and compound sets to metabolic graphs and identify significant graphs
@@ -108,4 +107,4 @@ ann<-identifyGraph(moleculeList1,graphList,type="gene_compound")
 #convert ann to data.frame
 result<-printGraph(ann)
 result[,1:5]
-write.table(result,file="EC_gene_pv05fc2metabolite_enrichment_result_pv05.txt",row.names=FALSE,sep="\t",quote=FALSE)
+write.table(result,file="MU_gene_pv05fc2metabolite_enrichment_result_pv05.txt",row.names=FALSE,sep="\t",quote=FALSE)

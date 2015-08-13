@@ -11,6 +11,7 @@ library(VennDiagram)
 library(d3heatmap) #interactive heatmaps
 library(RColorBrewer)
 library(dplyr)
+library(tidyr)
 
 #### Genes
 
@@ -41,7 +42,7 @@ WTEC_diff<- mutate(WTEC_diff, KEGGcolor = ifelse(logFC_WTEC <= 0 , "red","blue")
 # [1] 3705
 nrow(WTEC_diff[WTEC_diff$logFC_WTEC>=0,])
 #Up-regulated in WT 
-#406
+#1668
 nrow(WTEC_diff[WTEC_diff$logFC_WTEC<=0,])
 #Down-regulated in WT 
 #2037
@@ -110,4 +111,74 @@ nrow(onlyWTMU_notWTEC)
 #303
 write.table(onlyWTMU_notWTEC,"onlyWTMU_notWTEC_differentialGenes.txt",sep="\t",quote=FALSE,row.names=FALSE)
 
+#### Formatting gene id and pathway membership table
+#For EC
+WTEC_genePathwayInfo<-read.table("../../Metabolomics/data/EnrichmentAnalysis/gFC2mFC2pv05/WTEC_genePathway.txt",header=TRUE,
+                                 sep="\t")
 
+WTEC_geneRegulation<-WTEC_genePathwayInfo[,c(3,4)]
+##Splitting the annMolecule list column which contains gene id's separated by ';'
+##this list will contain only genes that have been assigned to a pathway in KEGG
+WTEC_genePathwayInfo_long<-setDT(WTEC_genePathwayInfo)[, strsplit(as.character(annMoleculeList),";",fixed=TRUE), by=list(pathwayName,annMoleculeList)][,.(pathwayName,annMoleculeList=V1)]
+setnames(WTEC_genePathwayInfo_long,"annMoleculeList","GeneId")
+WTEC_genePathwayInfo_long<-as.data.frame(WTEC_genePathwayInfo_long)
+WTEC_genePathwayInfo_longReg<-merge(WTEC_genePathwayInfo_long,WTEC_geneRegulation,by='GeneId', all.x= TRUE)
+
+#Count and summarise using dplyr
+
+WTEC_genePathwayInfo_longReg_count<-WTEC_genePathwayInfo_longReg %>% 
+  group_by (pathwayName, Regulation) %>% 
+  tally(sort=TRUE)
+write.table(WTEC_genePathwayInfo_longReg_count,"WTEC_genePathwayInfo_longReg_count.txt",sep="\t",quote=FALSE,row.names=FALSE)
+
+WTEC_genePathwayInfo_longReg_count$sample<-rep("EC",nrow(WTEC_genePathwayInfo_longReg_count))
+
+#For MU
+WTMU_genePathwayInfo<-read.table("../../Metabolomics/data/EnrichmentAnalysis/gFC2mFC2pv05/WTMU_genePathway.txt",header=TRUE,
+                                 sep="\t")
+
+WTMU_geneRegulation<-WTMU_genePathwayInfo[,c(3,4)]
+##Splitting the annMolecule list column which contains gene id's separated by ';'
+##this list will contain only genes that have been assigned to a pathway in KEGG
+WTMU_genePathwayInfo_long<-setDT(WTMU_genePathwayInfo)[, strsplit(as.character(annMoleculeList),";",fixed=TRUE), by=list(pathwayName,annMoleculeList)][,.(pathwayName,annMoleculeList=V1)]
+setnames(WTMU_genePathwayInfo_long,"annMoleculeList","GeneId")
+WTMU_genePathwayInfo_long<-as.data.frame(WTMU_genePathwayInfo_long)
+WTMU_genePathwayInfo_longReg<-merge(WTMU_genePathwayInfo_long,WTMU_geneRegulation,by='GeneId', all.x= TRUE)
+
+#Count and summarise using dplyr
+
+WTMU_genePathwayInfo_longReg_count<-WTMU_genePathwayInfo_longReg %>% 
+  group_by (pathwayName, Regulation) %>% 
+  tally(sort=TRUE)
+
+write.table(WTMU_genePathwayInfo_longReg_count,"WTMU_genePathwayInfo_longReg_count.txt",sep="\t",quote=FALSE,row.names=FALSE)
+
+WTMU_genePathwayInfo_longReg_count$sample<-rep("MU",nrow(WTMU_genePathwayInfo_longReg_count))
+
+WTECMU_pathway_trends<-rbind(WTEC_genePathwayInfo_longReg_count,WTMU_genePathwayInfo_longReg_count)
+
+WTECMU_pathway_trends1<-WTECMU_pathway_trends %>% 
+  group_by(pathwayName,sample) %>% 
+  mutate(EC=cumsum(ifelse(sample=="EC",n,0))) %>% 
+  mutate(MU=cumsum(ifelse(sample=="MU",n,0)))
+
+
+
+##Plotting pathway trends
+WTECMU_pathway_trends$Regulation<-factor(WTECMU_pathway_trends$Regulation, levels=c('up','down'))
+  
+plot1<-ggplot(data=WTECMU_pathway_trends, aes(x=pathwayName, y=n, fill= factor(Regulation))) +
+  geom_bar(stat="identity", position="dodge") + facet_grid(sample~.) +
+  theme_bw() + theme(axis.text.x=element_text(size=8),axis.text.y=element_text(size=12),
+                     panel.grid.major.x = element_blank(), # to x remove gridlines
+                     panel.grid.major.y = element_blank(), # to y remove gridlines
+                     #panel.border = element_blank(),  # remove top and right border
+                     panel.background = element_blank(),
+                     axis.line = element_line(color = 'black')) + ggtitle("Pathway trends") + ylab("No of Diff genes")
+
+ggsave("PathwayTrends.pdf",plot1)
+
+#####Making long to wide
+
+WTECMU_pathway_trends_wide <-dcast(WTECMU_pathway_trends, pathwayName + Regulation ~ sample, value.var="n")
+write.table(WTECMU_pathway_trends_wide,"WTECMU_pathway_trends.txt",sep="\t",quote=FALSE,row.names=FALSE)
