@@ -94,10 +94,21 @@ python htseq-count  -s no -a 10 /data/metagenome_data/Desktop/ProfPrakash/data/W
 
 library("edgeR")
 counts = readDGE(samples$countf)$counts
+counts.full = readDGE(samples$countf)$counts
 noint = rownames(counts) %in%  c("no_feature","ambiguous","too_low_aQual", "not_aligned","alignment_not_unique") 
 cpms = cpm(counts)
 keep = rowSums(cpms >1) >=2 & !noint #2 is the number of replicates
 counts = counts[keep,]
+
+#Gene of interest
+
+# > counts.full[63097,]
+# ECE1 ECE2  MU1  MU2  WT1  WT2 
+# 21   32    0    1    9    7 
+# > rownames(counts.full)[63097]
+# [1] "OS03G0140400"
+
+#OS03G0140400 is almost 3-fold up in over-expression line
 
 colnames(counts) = samples$shortname
 
@@ -110,6 +121,17 @@ d = calcNormFactors(d)
 d = estimateCommonDisp(d)
 
 d = estimateTagwiseDisp(d)
+
+##Effective library sizes
+d$samples$lib.size * d$samples$norm.factors
+
+#EC.1 34690449
+#EC.2 35551848 
+#MU.1 31805211
+#MU.2 36929702
+#WT.1 34932760
+#WT.2 35036621
+
 pdf("meanVar.pdf")
 plotMeanVar(d, show.tagwise.vars=TRUE, NBline=TRUE)
 dev.off()
@@ -121,6 +143,8 @@ dev.off()
 de_WTEC = exactTest(d, pair=c("WT","EC"))
 de_WTMU = exactTest(d, pair=c("WT","MU"))
 de_ECMU = exactTest(d, pair=c("EC","MU"))
+
+summary( decideTestsDGE( de_WTEC , p.value = 0.05 ) )
 
 tt_WTEC = topTags(de_WTEC, n=nrow(d))
 head(tt_WTEC$table)
@@ -135,7 +159,11 @@ rn_WTEC = rownames(tt_WTEC$table)
 rn_WTMU = rownames(tt_WTMU$table)
 rn_ECMU = rownames(tt_ECMU$table)
 
-#head(nc[rn,order(samples$condition)],5)
+#head(nc[rn_WTEC,order(samples$condition)],5)
+
+#depth-adjusted reads per million
+write.table(nc[rn_WTEC,order(samples$condition)],"WTEC_differentialGeneTable.txt",sep="\t",quote=FALSE)
+write.table(nc[rn_WTMU,order(samples$condition)],"WTMU_differentialGeneTable.txt",sep="\t",quote=FALSE)
 
 pdf("SMEAR_WTEC.pdf")
 deg_WTEC = rn_WTEC[tt_WTEC$table$FDR < .05]
