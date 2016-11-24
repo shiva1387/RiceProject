@@ -108,6 +108,8 @@ counts = counts[keep,]
 # > rownames(counts.full)[63097]
 # [1] "OS03G0140400"
 
+#which(rownames(counts.full)=="OS03G0214100")
+
 #OS03G0140400 is almost 3-fold up in over-expression line
 
 colnames(counts) = samples$shortname
