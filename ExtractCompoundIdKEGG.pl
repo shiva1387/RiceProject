@@ -5,6 +5,7 @@ die "USAGE: $0 KEGGftp/ligand/compound/compound" unless $#ARGV == 0;
 
 $/ = '///';
 
+print "Extracting compound ID, name, exact MASS, molecular weight\n";
 open COMPOUND, $ARGV[0] || die $!;
 while(<COMPOUND>) {
     /^ENTRY\s+      (?<CPD>C\d{5}).*
